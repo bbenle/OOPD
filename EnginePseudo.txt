@@ -1,0 +1,135 @@
+CLASS: Engine
+
+CONSTANTS:
+    MINCYL = 2 (integer)
+    MAXCYL = 20 (integer)
+    BAT = battery (String)
+    DSL = diesel (String)
+    BIO = bio (String)
+
+
+CLASS FIELDS:
+    cylinders (integer)
+    fuel (String)
+
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: 20 cylinders with diesel as fuel type
+    ALGORITHM:
+        cylinders = MAXCYL
+        fuel = DSL
+
+
+Alternate:
+    IMPORT: inCylinders (integer), inFuel (String)
+    EXPORT: address of new Engine object
+    ASSERTION: creates the object if imports are valid otherwise fails
+    ALGORITHM:
+        IF (validateCylinders <- inCylinders) AND (validateFuel <- inFuel) THEN
+            cylinders <- inCylinders    
+            fuel <- inFuel.toLowerCase
+        
+        ELSE
+            FAIL
+        END IF
+
+
+Copy:
+    IMPORT: inEngine (Engine)
+    EXPORT: address of new Engine object
+    ASSERTION: creates an object with an identical object state as the import
+    ALGORITHM:
+        cylinders = inEngine.getCylinders <- none
+        fuel = inEngine.getFuel <- none
+
+
+Clone:
+    IMPORT: none
+    EXPORT: cloneEngine
+    ASSERTION:
+    ALGORITHM:
+        CONSTRUCT cloneEngine USING this
+
+
+MUTATORS:
+SUBMODULE: setCylinders
+    IMPORT: inCylinders (integer)
+    EXPORT: none
+    ASSERTION: sets cylinders to inCylinders
+    ALGORITHM:
+        IF (validateCylinders <- inCylinders) THEN
+            cylinders = inCylinders
+        ELSE
+            FAIL
+        END IF
+END setCylinders
+
+
+SUBMODULE: setFuel
+    IMPORT: inFuel (String)
+    EXPORT: none
+    ASSERTION: sets fuel to inFuel
+    ALGORITHM:
+        IF (validateFuel <- inFuel) THEN
+            fuel = inFuel.toLowerCase
+        ELSE
+            FAIL
+        END IF
+END setFuel
+
+
+ACCESSORS:
+SUBMODULE: getCylinders
+    IMPORT: none
+    EXPORT: cylinders (integer)
+
+
+SUBMODULE: getFuel     
+    IMPORT: none
+    EXPORT: fuel (String)
+
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ASSERTION: compares two engines to see if they are the same
+    ALGORITHM:
+        same (boolean)  = false
+
+        IF (inObj IS AN Engine) THEN
+            inEngine = (convert to Engine)inObj
+            same = (cylinders EQUALS inEngine.getCylinders <- none) AND (fuel EQUALS inEngine.getFuel <- none)
+        
+        END IF
+END equals
+
+
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        str = " it's engine has " + cylinders + " cylinders and runs on " + fuel + " fuel."
+END toString
+
+
+PRIVATE SUBMODULES
+SUBMODULE: validateCylinders
+    IMPORT: inCylinders (integer)
+    EXPORT: valid (boolean)
+    ASSERTION: cylinders is between 2 and 20 inclusive
+    ALGORITHM:
+        ((inCylinders >= MINCYL) AND (cylinders <= MAXCYL))
+END validateCylinders
+
+
+SUBMODULE: validateFuel  
+    IMPORT: inFuel (String)
+    EXPORT: valid (boolean)
+    ASSERTION: fuel is either battery, diesel or bio
+    ALGORITHM:
+        inFuel = inFuel.toLowerCase
+        (fuel.equals(BAT)) OR (fuel.equals(DSL)) OR (fuel.equals(BIO))
+END validateFuel

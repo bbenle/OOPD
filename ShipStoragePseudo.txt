@@ -1,0 +1,127 @@
+CLASS: ShipStorage
+
+CONSTANTS: 
+    MAXSHIP = 30 (integer)
+
+
+CLASS FIELDS: 
+    shipArray (OF TYPE Ship)
+    shipCount (integer)
+
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: creates shipArray made of Ship with a size of 30 and initalises shipCount as 0
+    ALGORITHM:
+        shipArray (ARRAY OF Ship) OF SIZE MAXSHIP (integer)
+        shipCount = 0 (integer)
+
+
+SUBMDOULE: addShip
+    IMPORT: addedShip (Ship)
+    EXPORT: none
+    ASSERTION: adds a copy of the ship to the array unless array full or added ship is null
+    ALGORITHM:
+        IF (shipCount >= MAXSHIP)
+            FAIL
+        ELSE IF (addedShip == null)
+            FAIL
+        ELSE
+            shipArray[shipCount] := addedShip.clone 
+            shipCount = shipCount + 1
+END addShip
+
+
+SUBMODULE: destinationCheck
+    IMPORT: travelDistance (integer)
+    EXPORT: outStr (String)
+    ASSERTION: determines amount of time it takes to cover a specific distance and outputs the fastest ship
+    ALGORITHM:
+        shipIndex = 0 (integer)
+        fastestShip = null (Ship)
+        outStr = "" (String)
+
+        IF (shipCount == 0)
+            outStr = "There are no ships in the ship storage"
+        ELSE
+            FOR ii = 0 TO shipCount (EXCLUSIVE) INC BY 1
+                shipTime = shipArray[ii].calcTravel(travelDistance)
+
+            IF (shipTime < fastestTime)
+                fastestShip = shipArray[ii]
+                fastestTime = shipTime
+            
+            outStr = fastestShip.toString + " with a travel time of " + fastestTime + " hours."
+END destinationCheck
+
+
+SUBMODULE: findDuplicates
+    IMPORT: none
+    EXPORT: dupShip (String)
+    ASSERTION: loops through shipArray and outputs all the ships that are the same
+    ALGORITHM: 
+        FOR ii = 0 TO shipCount (EXCLUSIVE) INC BY 1
+            FOR jj = ii + 1 TO jj < shipCount INC BY 1
+                IF shipArray[ii] EQUALS shipArray[jj]           
+                    dupShip += shipArray[ii].toString + "NEWLINE"
+END findDuplicates 
+
+
+SUBMODULE: viewShips
+    IMPORT: none
+    EXPORT: shipString (String) 
+    ASSERTION: outputs the details of the ships in a string 
+    ALGORITHM:
+        FOR ii = 0 TO shipCount (EXCLUSIVE) INC BY 1
+            shipString += shipArray[ii].toString + "NEWLINE"
+END viewShips
+
+
+ACCESSORS:
+SUBMODULE: getShipArray
+    IMPORT: none
+    EXPORT: shipCopy(copy of submarine array)
+    ALGORITHM:
+        FOR ii = 0 to shipArray.length (EXCLUSIVE) INC BY 1
+            shipCopy[ii] = shipArray[ii]
+END getShipArray        
+
+
+SUBMODULE: getShipCount
+    IMPORT: none
+    EXPORT: none 
+
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ASSERTION: compares shipCount and shipArray to see if they're equal
+    ALGORITHM:
+        same (boolean) = false
+
+        IF (inObj IS A ShipStorage) THEN
+            inShipStorage = (Convert to ShipStorage)inObj
+            same = ((shipCount EQUALS inShipStorage.getShipCount <- none) AND (shipArray EQUALS inShipStorage.getShipArray <- none))
+END equals
+            
+
+SUBMODULE: equalArrays
+    IMPORT: arrayOne (Object), arrayTwo (Object)
+    EXPORT: equal (boolean)
+    ASSERTION: compares two arrays to see if they're equal
+    ALGORITHM:
+        equal (boolean) = true
+
+        IF LENGTH OF arrayOne NOT EQUAL LENGTH OF arrayTwo THEN
+            equal = false
+        ELSE
+            count = 0
+
+            DO
+                equal = arrayOne[count].equals <- arrayTwo[count]
+                count = count + 1
+            WHILE equal AND count < LENGTH OF submarineArray
+        END IF
+END equalArrays      

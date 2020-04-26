@@ -1,0 +1,90 @@
+CLASS: FileManager
+
+SUBMODULE: readFile 
+    IMPORT: ss (ShipStorage), fileName (Strng)
+    EXPORT: none
+    ASSERTION: reads each line of the file
+    ALGORITHM:
+        theFile <- OPENFILE fileName
+        lineNum <- 0
+        INPUT line FROM theFile
+
+        WHILE NOT (theFile = EOF)
+            lineNum <- lineNum + 1
+            processLine(line)
+
+            INPUT line FROM theFile
+        END WHILE
+
+        CLOSEFILE theFile
+END readFile
+
+
+SUBMODULE: processLine
+    IMPORT: ss (ShipStorage), line (String)
+    EXPORT: none
+    ASSERTION: reads and process each line
+    ALGORITHM: 
+        TRY 
+            lineArray = line.split(",") 
+            
+            IF lineArray LENGTH IS NOT 7 THEN
+                THROW IllegalArgumentException("Invalid")
+        
+            IF lineArray[0] LENGTH IS NOT 1 THEN
+                THROW IllegalArgumentException("Invalid")
+            
+            shipChoice = lineArray[0].charAt(0)
+            serialNum = (lineArray[1])
+            year = (lineArray[2] CONVERT TO INTEGER)
+            cylinders = (lineArray[3] CONVERT TO INTEGER)
+            fuel = (lineArray[4])
+        
+            CONSTRUCT engine USING cylinders, fuel (ALTERNATE CONSTRUCTOR)
+        
+            CASE shipChoice
+                case 'S': case 's':
+                    hull = (lineArray[5])
+                    maxDepth = (lineArray[6] CONVERT TO REAL)
+                    
+                    CONSTRUCT submarine USING serialNum, year, hull, maxDepth, engine
+            
+                    ss.addShip(submarine)
+
+                case 'F': case 'f':
+                    wingSpan = (lineArray[5] CONVERT TO REAL)
+                    ordnance = (lineArray[6])
+
+                    CONSTRUCT fighterjet USING serialNum, year, wingSpan, ordnance, engine
+                
+                    ss.addShip(fighterjet)
+                
+                DEFAULT:
+                    THROW IllegalArgumentException("Invalid object")
+            
+            CATCH (IllegalArgumentException e)
+                OUTPUT 
+            
+
+SUBMODULE: writeFile 
+    IMPORT: ss (ShipStorage), fileName (String) 
+    EXPORT: none
+    ASSERTION: outputs ship to text file
+    ALGORITHM: 
+        TRY
+            fileStrm = new FileOutputStream <- fileName
+            pw = new PrintWriter <- fileStrm
+
+            FOR ii = 0 TO ss.getShipCount <- none (EXCLUSIVE) INC BY 1
+                pw.println <- ss.getShipArray[ii].toFileString <- none
+
+            pw.close <- none
+
+        CATCH IOException e
+
+            IF (fileStrm NOT null)
+                TRY
+                    fileStrm.close <- none
+                CATCH IOException ex2
+
+            OUTPUT "Error in writing to file " + e.getMessage <- none

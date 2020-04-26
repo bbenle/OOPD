@@ -1,0 +1,175 @@
+ABSTRACT CLASS: Ship
+
+CONSTANTS:
+    MINYEAR = 1950 (integer)
+    MAXYEAR = 2022 (integer)
+
+
+CLASS FIELDS:
+    serialNum (String)
+    year (integer) 
+    engine (Engine)
+
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none 
+    ASSERTION: serial number 169.420 of year 2022 with engine
+    ALGORITHM:
+        serialNum = "169.420"
+        year = MAXYEAR
+        engine = default Engine
+
+
+Alternate:
+    IMPORT: inSerialNum (real), inYear (integer), inEngine (Engine)
+    EXPORT: address of new Ship object
+    ASSERTION: creates the object if imports are valid, otherwise fails 
+    ALGORITHM:
+        IF (validateSerialNum <- inSerialNum) AND (validateYear <- inYear) AND (validateEngine <- inEngine) 
+            serialNum = inSerialNum
+            year = inYear
+            engine = inEngine
+        ELSE
+            FAIL
+
+
+Copy:
+    IMPORT: inShip (Ship)
+    EXPORT: address of new Ship object
+    ASSERTION: creates an object with an identical object state as the import
+    ALGORITHM:
+        serialNum = inShip.getSerialNum <- none
+        year = inShip.getYear <- none
+        engine = inShip.getEngine <- none
+
+
+Abstract Clone:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: creates a clone of ship
+
+
+MUTATORS:
+SUBMODULE: setSerialNum
+    IMPORT: inSerialNum (String)
+    EXPORT: none
+    ASSERTION: sets serialNum to inSerialNum
+    ALGORITHM: 
+        IF (validateSerialNum <- inSerialNum) THEN
+            serialNum = inSerialNum
+        ELSE
+            FAIL
+        END IF
+END setSerialNum
+
+
+SUBMODULE: setYear
+    IMPORT: inYear (integer)
+    EXPORT: none
+    ASSERTION: sets year to inYear
+    ALGORITHM:
+        IF (validateYear <- inYear) THEN
+            year = inYear
+        ELSE
+            FAIL
+        END IF
+END setYear
+
+
+SUBMODULE: setEngine
+    IMPORT: inEngine (Engine)
+    EXPORT: none
+    ASSERTION: sets engine to inEngine
+    ALGORITHM:
+            engine = NEW Engine <- inEngine
+END setEngine
+
+
+ACCESSORS:
+SUBMODULE: getSerialNum
+    IMPORT: none 
+    EXPORT: serialNum (real)
+
+
+SUBMODULE: getYear
+    IMPORT: none
+    EXPORT: year (integer)
+
+
+SUBMODULE: getEngine
+    IMPORT: none
+    EXPORT: engine (Engine)
+
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ALGORITHM: compares two ships to see if they are the same
+        same = false
+        
+        IF (inObj IS A Ship) THEN
+            inShip = (Convert to Ship)inObj
+            same = (serialNum EQUALS inShip.getSerialNum <- none) AND 
+            (year EQUALS inShip.getYear <- none) AND (engine EQUALS inShip.getEngine <- none)
+        END IF
+END equals 
+
+
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = "The ship " + serialNum + " was commissioned in " + year + "," + engine.toString()"
+END toString
+
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        serialNum + "," + year + "," + engine.getCylinders + "," + engine.getFuel
+END toFileString
+
+
+SUBMODULE: abstract calcTravel
+    IMPORT: none
+    EXPORT: none
+
+
+PRIVATE SUBMODULES
+SUBMODULE: validateSerialNum
+    IMPORT: inSerialNum (String)
+    EXPORT: valid (boolean)
+    ASSERTION: serial number must be in format XXX.YYY where XXX is between 100 and 300, YYY between 1 and 999 (inclusive)
+    ALGORITHM:
+        int XXX = 0, YYY = 0
+        serialNum (ARRAY OF String) SIZE OF 2
+       
+        TRY
+            serialNum = inSerialNum.split("\\.")
+            XXX (integer) = Integer.parseInt(serialNum[0])
+            YYY (integer) = Integer.parseInt(serialNum[1])
+        CATCH NumberFormationException e
+            OUTPUT "Invalid serial number " + inSerialNum
+        CATCH ArrayIndexOutOfBoundsException e)
+            OUTPUT "Invalid. Serial number must be in form XXX.YYY"
+END validateSerialNum
+
+
+SUBMODULE: validateYear
+    IMPORT: inYear (integer)
+    EXPORT: valid (boolean)
+    ASSERTION: year is between 1950 and 2022 inclusive
+    ALGORITHM:
+        (inYear >= MINYEAR) AND (inYear <= MAXYEAR) 
+END validateYear
+
+
+SUBMODULE:
+    IMPORT: inEngine
+    EXPORT: valid (boolean)
+    ASSERTION: engine is not null
+    ALGORITHM:
+        (inEngine NOT EQUAL null)

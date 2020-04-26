@@ -1,0 +1,158 @@
+CLASS: Submarine inherits from Ship
+
+CONSTANTS:
+    STL = "steel" (String)
+    ALY = "alloy" (String)
+    TIT = "titanium" (String)
+    MINDEPTH = 0.0 (real)
+    MAXDEPTH = -500.0 (real)
+    TOL = 0.0001 (real)
+
+
+CLASS FIELDS: 
+    hull (String)
+    maxDepth (real) 
+
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: calls super default constructor and includes hull made of titanium and has a max depth of -500.0
+    ALGORITHM: 
+        super default constructor
+        hull := TIT
+        maxDepth = MAXDEPTH
+        
+
+Alternate:
+    IMPORT: inSerialNum (String), inYear (integer), inHull (String), inMaxDepth (real), inEngine (Engine)
+    EXPORT: address of new Submarine object
+    ASSERTION: creates the object if imports are valid otherwise fails
+    ALGORITHM:
+        super <- inSerialNum, inYear, inEngine
+        
+        IF ((validateHull <- inHull) AND (validateMaxDepth <- inMaxDepth)) THEN
+            hull <- inHull.toLowerCase
+            maxDepth <- inMaxDepth
+        ELSE
+            FAIL
+        END IF
+
+
+Copy:
+    IMPORT: inSubmarine (Submarine)
+    EXPORT: address of new Submarine object
+    ASSERTION: creates an object with an identical object state as the import
+    ALGORITHM: 
+        super <- inSubmarine
+        hull = inSubmarine.getHull <- none
+        maxDepth = inSubmarine.getMaxDepth <- none
+
+
+Clone:
+    IMPORT: none 
+    EXPORT: cloneSubmarine
+    ASSERTION: creates a clone of the object submarine
+    ALGORITHM: 
+        CONSTRUCT cloneSubmarine USING this
+        
+
+SUBMODULE: setHull
+    IMPORT: inHull (String)
+    EXPORT: none 
+    ASSERTION: sets inHull to hull
+    ALGORITHM: 
+        IF (validateHull <- inHull) THEN
+            hull = inHull.toLowerCase
+        ELSE
+            FAIL
+        END IF
+END setHull
+
+   
+SUBMODULE: setMaxDepth
+    IMPORT: inMaxDepth (real)
+    EXPORT: none 
+    ASSERTION: sets inMaxDepth to maxDepth
+    ALGORITHM:
+        IF (validateMaxDepth <- inMaxDepth) THEN
+            maxDepth = inMaxDepth
+        ELSE
+            FAIL
+        END IF
+END setMaxDepth
+
+
+ACCESSORS:
+SUBMODULE: getHull
+    IMPORT: none
+    EXPORT: hull (String)
+
+
+SUBMODULE: getMaxDepth
+    IMPORT: none
+    EXPORT: maxDepth (real)
+
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ASSERTION: compare two submarines to see if they are the same
+    ALGORITHM:
+        same (boolean) = false
+        
+        IF (inObj IS A Submarine) THEN
+            inSubmarine = (Convert to Submarine)inObj
+            same = ((super.equals <- inSubmarine) AND 
+            (hull EQUALS inSubmarine.getHull <- none) 
+            AND Math.abs <- (maxDepth - inSubmarine.getMaxDepth <- none) < TOL)
+             
+        END IF
+END equals 
+
+
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = super.toString <- none + " It is a submarine with a " + hull + " hull and a max depth of " + maxDepth + " meters."
+END toString
+
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM:
+        str = ("S," + super.toFileString <- none + "," + hull + "," + maxDepth)
+END toFileString
+
+
+SUBMODULE: calcTravel
+    IMPORT: travelDistance (integer)
+    EXPORT: subTime (real)
+    ASSERTION: calculates the time it takes for a submarine to travel a certain distance
+    ALGORITHM: 
+        subTime = (convert to real) (travelDistance) / (convert to real) (super.getEngine.getCylinders) * (1.0/(10.0 + (getMaxDepth * -1.0)))
+        subTime = Math.round <- (subTime * 100.0) / 100.0
+END calcTravel
+    
+
+PRIVATE SUBMODULES
+SUBMODULE: validateHull
+    IMPORT: inHull (String)
+    EXPORT: valid (boolean)
+    ASSERTION: hull is either steel, alloy or titanium
+    ALGORITHM: 
+        inHull = inHull.toLowerCase
+        (inHull.equals(STL)) OR (inHull.equals(ALY)) OR inHull.equals(TIT))
+END validateHull
+
+
+SUBMODULE: validateMaxDepth   
+    IMPORT: inMaxDepth (real)
+    EXPORT: valid (boolean) 
+    ASSERTION: maxDepth is between -500.0 and 0.0 inclusive
+    ALGORITHM:
+        (inMaxDepth >= MAXDEPTH) AND (inMaxDepth <= MINDEPTH)
+END validateMaxDepth

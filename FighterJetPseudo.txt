@@ -1,0 +1,153 @@
+CLASS: FighterJet inherits from Ship
+
+CONSTANTS:
+    MAXSPAN = 25.6 (real)
+    MINSPAN = 2.20 (real)
+    TOL = 0.0001 (real) 
+ 
+CLASS FIELDS: 
+    wingSpan (real)
+    ordnance (String)
+   
+
+CONSTRUCTORS:
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: calls super default constructor and includes wing span of 25.6 and ordnance of Stormbreaker
+    ALGORITHM:
+        super default constructor 
+        wingSpan := MAXSPAN
+        ordnance := "Stormbreaker"
+
+
+Alternate:
+    IMPORT: inSerialNum (real), inYear (integer), inOrdnance (String), inWingSpan (real), inEngine (Engine)
+    EXPORT: address of new FighterJet object
+    ASSERTION: creates the object if imports are valid otherwise fails
+    ALGORITHM:
+        super <- inSerialNum, inYear, inEngine
+
+        IF (validateWingSpan <- inWingSpan) AND (validateOrdnance <- inOrdnance) THEN
+            wingSpan <- inWingSpan
+            ordnance <- inOrdnance
+    
+        ELSE
+            FAIL
+        END IF
+
+
+Copy:
+    IMPORT: inFighterJet (FighterJet)
+    EXPORT: address of new FighterJet object
+    ASSERTION: creates an object with an identical object state as the import
+    ALGORITHM:
+        super <- inFighterJet 
+        wingSpan = inFighterJet.getWingSpan <- none
+        ordnance = inFighterJet.getOrdnance <- none
+ 
+
+Clone:
+    IMPORT: none 
+    EXPORT: cloneFighterJet
+    ASSERTION: creates a clone of the object fighterjet 
+    ALGORITHM: 
+        CONSTRUCT cloneFighterJet USING this
+        
+
+MUTATORS:
+SUBMODULE: setWingSpan
+    IMPORT: inWingSpan (real)
+    EXPORT: none 
+    ASSERTION: sets wingSpan to inWingSpan
+    ALGORITHM:
+        IF (validateWingSpan <- inWingSpan) THEN
+            wingSpan = inWingSpan
+        ELSE
+            FAIL
+        END IF
+END setWingSpan
+
+
+SUBMODULE: setOrdnance
+    IMPORT: inOrdnance (String)
+    EXPORT: none 
+    ASSERTION: sets ordnance to inOrdnance
+    ALGORITHM: 
+        IF (validateOrdnance <- inOrdnance) THEN
+            ordnance = inOrdnance
+        ELSE
+            FAIL
+        END IF
+END setOrdnance
+
+   
+ACCESSORS:
+SUBMODULE: getWingSpan
+    IMPORT: none
+    EXPORT: wingSpan (real)
+
+SUBMODULE: getOrdnance
+    IMPORT: none
+    EXPORT: ordnance (String)
+
+
+SUBMODULE: equals
+    IMPORT: inObj (Object)
+    EXPORT: same (boolean)
+    ALGORITHM: compare two fighterjets to see if they are the same
+        same (boolean) = false
+        
+        IF (inObj IS A FighterJet) THEN
+            inFighterJet = (Convert to FighterJet)inObj
+            same = ((super.equals <- inFighterJet)) AND 
+            Math.abs <- (wingSpan - inFighterJet.getWingSpan <- none) < TOL) 
+            AND (ordnance EQUALS inFighterJet.getOrdnance <- none) 
+             
+        END IF
+END equals 
+
+
+SUBMODULE: toString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = (super.toString + " It is a fighter jet with a wing span of " + wingSpan + " meters and equipped with " + ordnance)
+END toString
+
+
+SUBMODULE: toFileString
+    IMPORT: none
+    EXPORT: str (String)
+    ALGORITHM: 
+        str = ("F," + super.toFileString + "," + wingSpan + "," + ordnance)
+END toFileString
+
+
+SUBMODULE: calcTravel
+    IMPORT: travelDistance (integer)
+    EXPORT: jetTime (real)
+    ASSERTION: calculates the time it takes for a fighter jet to travel a certain distance
+    ALGORITHM:
+        jetTime = travelDistance / (getWingSpan * super.getEngine.getCylinders * 150)
+        jetTime = Math.round <- (subTime * 100.0) / 100.0
+END calcTravel
+
+
+PRIVATE SUBMODULES
+SUBMODULE: validateWingSpan  
+    IMPORT: inWingSpan (real)
+    EXPORT: valid (boolean) 
+    ASSERTION: wingSpan is between 2.20 and 25.6 inclusive
+    ALGORITHM:
+        (inWingSpan >= MINSPAN) AND (inWingSpan <= MAXSPAN)
+END validateWingSpan
+
+
+SUBMODULE: validateOrdnance
+    IMPORT: inOrdnance (String)
+    EXPORT: valid (boolean)
+    ASSERTION: ordnance is any valid string
+    ALGORITHM: 
+        ((inOrdnance NOT EQUAL TO null) AND (inOrdnance NOT empty))
+END validateOrdnance

@@ -1,0 +1,289 @@
+CLASS: UserInterface
+
+CONSTANTS:
+    STL = "steel" (String)
+    ALY = "alloy" (String)
+    TIT = "titanium" (String)
+    BAT = "battery" (String)
+    DSL = "diesel" (String)
+    BIO = "bio" (String)
+    MINDEPTH = 0.0 (real)
+    MAXDEPTH = -500.0 (real)
+    MINSPAN = 2.20 (real)
+    MAXSPAN = 25.6 (real)
+    MINYEAR = 1950 (integer)
+    MAXYEAR = 2022 (integer)
+    MINCYL = 2 (integer)
+    MAXCYL = 20 (integer)
+        
+
+CLASS FIELDS: 
+    shipStorage (ShipStorage) 
+
+
+CONSTRUCTORS
+Default:
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: creates the object
+    ALGORITHM: 
+        CONSTRUCT shipStorage USING default
+
+
+SUBMODULE: shipMenu
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: lists all options from  program for user to select
+    ALGORITHM: 
+        DO
+            shipmenu = integerInput <- + NEWLINE + "Select an option" + NEWLINE +
+                                    "1) Add Ships" + NEWLINE +
+                                    "2) Destination Check" + NEWLINE +
+                                    "3) Find Duplicates" + NEWLINE +
+                                    "4) View Ships" + NEWLINE +
+                                    "5) Load Ships" + NEWLINE +
+                                    "6) Save Ships" + NEWLINE +
+                                    "7) Exit", 1, 7
+
+        CASE shipmenu (integer)
+
+        1:
+            addShip <- none
+            
+        2:
+            destinationCheck <- none
+
+        3:
+            findDuplicates <- none
+
+        4:
+            OUTPUT shipStorage.viewShips <- none
+              
+        5: 
+            fileName = stringInput <- "Enter a file name"
+            FileManager.readFile <- shipStorage, fileName
+
+        6:
+            fileName = stringInput <- "Enter a file name"
+            FileManager.writeOneRow <- shipStorage, fileName
+
+        7: 
+            OUTPUT "Thank you for using Ben's program. Good bye!"            
+        
+        DEFAULT:
+            OUTPUT "Error. Enter a number between 1 and 7"
+
+        WHILE (shipmenu NOT 7)
+END shipMenu 
+
+
+SUBMODULE: addShip
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: prompts user to enter details of the ship depending on choice of submarine or fighter jet
+    ALGORITHM:
+         prompt (String) = + NEW LINE + "Pick a ship you want to create " + NEWLINE +
+                                        "1) Submarine" + NEWLINE +
+                                        "2) Fighter Jet" + NEWLINE +
+
+        num = integerInput <- prompt, 1, 2
+
+        DO
+            serialNum = stringInput <- + NEW LINE + "Enter the serial number in the format XXX.YYY" + NEWLINE +
+                                                    "XXX must be between 100 and 300 (inclusive)" + NEWLINE +
+                                                    "YYY must be between 1 and 999 (inclusive)"
+            valid = validateSerialNum <- serialNum
+        WHILE NOT valid
+
+        year = integerInput <- + NEWLINE + "Enter the commission year between 1950 and 2022 (inclusive)", 1950, 2022
+    
+        cylinders = integerInput <- + NEWLINE + "Enter the number of cylinders between 2 and 20 (inclusive), 2, 20
+
+        DO
+            fuel = stringInput <- + NEWLINE + "Enter the fuel type (battery, diesel or bio"
+            valid = validateFuel <- fuel
+        WHILE NOT valid
+
+        CONSTRUCT engine USING cylinders, fuel (ALTERNATE CONSTRUCTOR)
+
+        IF num EQUAL TO 1
+            DO
+                hull = stringInput <- + NEWLINE + "Enter the hull type (steel, alloy, or titanium)
+                valid = validateHull <- hull
+            WHILE NOT valid
+
+            maxDepth = realInput <- + NEWLINE + "Enter the max depth between -500 and 0.0 (inclusive), -500.0, 0.0
+
+            CONSTRUCT newSub USING serialNum, year, hull, maxDepth, engine (ALTERNATE CONSTRUCTOR)
+
+            shipStorage.addShip <- newSub
+
+        ELSE IF num EQUAL TO 2
+            wingSpan = realInput <- + NEWLINE + "Enter the wing span between 2.20 and 25.6 (inclusive), 2.20, 25.6
+
+            DO
+                ordnance = stringInput <- + NEWLINE + "Enter the ordnance (must not be empty"
+                valid = validateOrdnance <- ordnance
+            WHILE NOT valid
+
+            CONSTRUCT newJet USING serialNum, year, wingSpan, ordnance, engine (ALTERNATE CONSTRUCTOR)
+
+            shipStorage.addShip <- newJet
+END addShip
+
+
+SUBMODULE: destinationCheck
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: prompts user to enter travel distance and outputs 
+    ALGORITHM:
+        travelDistance = integerInput <- "Enter the travel distance", 0, Integer.MAX_VALUE
+        OUTPUT shipStorage.destinationCheck <- travelDistance
+END destinationCheck
+
+
+SUBMODULE: integerInput
+    IMPORT: prompt (String), min (integer), max (integer)
+    EXPORT: num (integer)
+    ASSERTION: used for any integer inputs from user
+    ALGORITHM:
+        num = 0 (integer)
+
+        DO
+            TRY
+                OUTPUT prompt (String)
+                INPUT num (integer)
+                prompt = "Error. Enter a valid number between " + min + " and " + max
+            CATCH invalid data type
+                CLEAR INPUT
+                prompt = "Error. Must be an integer"
+        WHILE ((num < min) OR (num > max))
+end integerInput
+
+                
+SUBMODULE: realInput    
+    IMPORT: prompt (String), min (real), min (real)
+    EXPORT: num (real)
+    ASSERTION: used for any real inputs from user
+    ALGORITHM: 
+        num = 0 (integer)
+
+        DO
+            TRY
+                OUTPUT prompt (String)
+                INPUT num (real)
+                prompt = "Error. Enter a valid number between " + min + " and " + max
+            CATCH InputMismatchException e
+                CLEAR INPUT
+                prompt = "Error. Must be a real number"
+        WHILE ((num < min) OR (num > max))
+END realInput
+
+
+SUBMODULE: stringInput
+    IMPORT: prompt (String)
+    EXPORT: str (String)
+    ASSERTION: used for any string inputs from user
+    ALGORITHM: 
+        OUTPUT prompt
+        INPUT str (String)
+END stringInput
+
+
+SUBMODULE: findDuplicates
+    IMPORT: none
+    EXPORT: none
+    ASSERTION: calls findDuplicates from ShipStorage class and prints out ships
+    ALGORITHM:
+        dupShip = shipStorage.findDuplicates <- none
+
+        IF dupship IS NOT null
+            OUPUT dupShip
+        ELSE
+            OUTPUT "No duplicates found"
+END findDuplicates
+
+
+PRIVATE SUBMODULES
+SUBMODULE: validateSerialNum
+    IMPORT: inSerialNum (String)
+    EXPORT: valid (boolean)
+    ASSERTION: serial number must be in format XXX.YYY where XXX is between 100 and 300, YYY between 1 and 999 (inclusive)
+    ALGORITHM:
+        int XXX = 0, YYY = 0
+        serialNum (ARRAY OF String) SIZE OF 2
+       
+        TRY
+            serialNum = inSerialNum.split("\\.")
+            XXX (integer) = Integer.parseInt(serialNum[0])
+            YYY (integer) = Integer.parseInt(serialNum[1])
+        CATCH NumberFormationException e
+            OUTPUT "Invalid serial number " + inSerialNum
+        CATCH ArrayIndexOutOfBoundException e
+            OUTPUT "Invalid. Serial number must be in format XXX.YYY"
+END validateSerialNum
+
+
+SUBMODULE: validateYear
+    IMPORT: inYear (integer)
+    EXPORT: valid (boolean)
+    ASSERTION: year is between 1950 and 2022 inclusive
+    ALGORITHM:
+        ((inYear >= MINYEAR) AND (inYear <= MAXYEAR) 
+END validateYear
+
+
+SUBMODULE: validateHull
+    IMPORT: inHull (String)
+    EXPORT: valid (boolean)
+    ASSERTION: hull is either steel, alloy or titanium
+    ALGORITHM: 
+        inHull = inHull.toLowerCase
+        (inHull.equals(STL)) OR (inHull.equals(ALY)) OR inHull.equals(TIT))
+END validateHull
+
+
+SUBMODULE: validateMaxDepth   
+    IMPORT: inMaxDepth (real)
+    EXPORT: valid (boolean) 
+    ASSERTION: maxDepth is between -500.0 and 0.0 inclusive
+    ALGORITHM:
+        (inMaxDepth >= MAXDEPTH) AND (inMaxDepth <= MINDEPTH)
+END validateMaxDepth
+
+
+SUBMODULE: validateWingSpan  
+    IMPORT: inWingSpan (real)
+    EXPORT: valid (boolean) 
+    ASSERTION: wingSpan is between 2.20 and 25.6 inclusive
+    ALGORITHM:
+        (inWingSpan >= MINSPAN) AND (inWingSpan <= MAXSPAN)
+END validateWingSpan
+
+
+SUBMODULE: validateOrdnance
+    IMPORT: inOrdnance (Str`ing)
+    EXPORT: valid (boolean)
+    ASSERTION: ordnance is any valid string
+    ALGORITHM: 
+        ((inOrdnance NOT EQUAL TO null) AND (inOrdnance NOT empty))
+END validateOrdnance
+
+
+SUBMODULE: validateCylinders
+    IMPORT: inCylinders (integer)
+    EXPORT: valid (boolean)
+    ASSERTION: cylinders is between 2 and 20 inclusive
+    ALGORITHM:
+        ((inCylinders >= MINCYL) AND (cylinders <= MAXCYL))
+END validateCylinders
+
+
+SUBMODULE: validateFuel  
+    IMPORT: inFuel (String)
+    EXPORT: valid (boolean)
+    ASSERTION: fuel is either battery, diesel or bio
+    ALGORITHM:
+        inFuel = inFuel.toLowerCase
+        (fuel.equals(BAT)) OR (fuel.equals(DSL)) OR (fuel.equals(BIO))
+    END validateFuel        

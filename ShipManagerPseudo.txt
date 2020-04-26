@@ -1,0 +1,7 @@
+MAIN
+    TRY
+        UserInterface ui = new UserInterface <- none
+        ui.shipMenu <- none
+    CATCH Exception e
+        OUTPUT e.getMessage <- none + " Sorry!"
+END MAIN
